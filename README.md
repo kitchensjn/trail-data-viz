@@ -1,3 +1,3 @@
 # trail-data-viz
 
-![trail-data-visualization-v1.png]
+![MockUp #1](trail-data-visualization-v1.png)
