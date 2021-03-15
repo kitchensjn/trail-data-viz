@@ -70,7 +70,7 @@ with open('../AT-waypoints.csv', 'w') as outfile:
     number_of_rows = len(all_data)
     for row in range(number_of_rows):
         row_length = len(all_data[row])
-        if all_data[row][1] != "":
+        if all_data[row][0] != "" and all_data[row][1] != "" and all_data[row][5] != "":
             for column in [0,1,5]:
                 if column != 5:
                     outfile.write(all_data[row][column] + ",")
