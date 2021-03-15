@@ -6,7 +6,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Trail Data Viz</title>
+        <title>Daily Mileage</title>
         <!-- Load d3.js -->
         <script src="https://d3js.org/d3.v4.js"></script>
     
@@ -34,7 +34,7 @@
                       "translate(" + margin.left + "," + margin.top + ")");
             
             // Parse the Data
-            d3.csv("data/AppalachianTrail_JamesKitchens.csv", function(data) {
+            d3.csv("../data/tigger-AT-thru-hike-2016.csv", function(data) {
             
               // Add X axis
               var x = d3.scaleLinear()
