@@ -20,6 +20,9 @@ def table_to_array(table):
         array.append(output_row)
     return array
 
+def rescale(value, start1, end1, start2, end2):
+    return ((value-start1)/(end1-start1))*(end2-start2)+start2
+
 
 # Postholer has broken the AT into segments defined by starting mileage
 # These starting mileages are used for the URLs 
@@ -72,9 +75,10 @@ with open('../AT-waypoints.csv', 'w') as outfile:
         row_length = len(all_data[row])
         if all_data[row][0] != "" and all_data[row][1] != "" and all_data[row][5] != "":
             for column in [0,1,5]:
-                if column != 5:
-                    outfile.write(all_data[row][column] + ",")
-                else:
-                    outfile.write(all_data[row][column])
+                outfile.write(all_data[row][column] + ",")
+            if row == 0:
+                outfile.write("Rescaled")
+            else:
+                outfile.write(str(round(rescale(value=float(all_data[row][1]), start1=0, end1=2180.0, start2=0, end2=2189.1), 1)))
             if row != number_of_rows - 1:
                 outfile.write("\n")

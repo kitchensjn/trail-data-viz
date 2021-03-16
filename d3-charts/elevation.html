@@ -42,20 +42,29 @@
             },
             */
           
+            
+
             // Now I can use this dataset:
             function(data) {
+
+              data = data.filter(function(d) {
+                return +d.Rescaled >= 0 && d.Rescaled <= 500;
+              })
           
               // Add X axis --> it is a date format
               var x = d3.scaleLinear()
-                .domain([0, d3.max(data, function(d) { return +d.Mile; })])
+                .domain([d3.min(data, function(d) { return +d.Rescaled; }), d3.max(data, function(d) { return +d.Rescaled; })])
+                //.domain([0, d3.max(data, function(d) { return +d.Rescaled; })])
                 .range([ 0, width ]);
               svg.append("g")
                 .attr("transform", "translate(0," + height + ")")
                 .call(d3.axisBottom(x));
           
+              console.log(d3.max(data, function(d) { return +d.Elev; }));
+
               // Add Y axis
               var y = d3.scaleLinear()
-                .domain([0, d3.max(data, function(d) { return +d.Elev; })])
+                .domain([0, 6607])
                 .range([ height, 0 ]);
               svg.append("g")
                 .call(d3.axisLeft(y));
@@ -63,13 +72,15 @@
               // Add the line
               svg.append("path")
                 .datum(data)
-                .attr("fill", "none")
+                .attr("fill", "steelblue")
                 .attr("stroke", "steelblue")
                 .attr("stroke-width", 1.5)
-                .attr("d", d3.line()
-                  .x(function(d) { return x(d.Mile) })
-                  .y(function(d) { return y(d.Elev) })
-                  )
+                .attr("d", d3.area()
+                  .curve(d3.curveMonotoneX)
+                  .x(function(d) { return x(d.Rescaled) })
+                  .y0(y(0))
+                  .y1(function(d) { return y(d.Elev) })
+                )
               
 
               var Tooltip = d3.select("#elevation")
@@ -90,7 +101,7 @@
                 }
                 var mousemove = function(d) {
                   Tooltip
-                    .html(d.Desc + "<br>" + "Mile " + d.Mile + " / " + d.Elev + " feet")
+                    .html(d.Desc + "<br>" + "Mile " + d.Rescaled + " / " + d.Elev + " feet")
                     .style("left", (d3.mouse(this)[0]+70) + "px")
                     .style("top", (d3.mouse(this)[1]) + "px")
                 }
@@ -98,7 +109,7 @@
                   Tooltip
                     .style("opacity", 0)
                 }
-
+              /*
               svg
                   .append("g")
                   .selectAll("dot")
@@ -112,6 +123,7 @@
                     .on("mouseover", mouseover)
                     .on("mousemove", mousemove)
                     .on("mouseleave", mouseleave)
+              */
 
           })
           
