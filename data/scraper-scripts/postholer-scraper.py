@@ -69,7 +69,7 @@ for sec in sections:
 
 # Save select waypoint's description, mile, and elevation to CSV
 # Removes waypoints without mileage and elevation data
-with open('../AT-waypoints.csv', 'w') as outfile:
+with open('../AT-waypoints-old.csv', 'w') as outfile:
     number_of_rows = len(all_data)
     for row in range(number_of_rows):
         row_length = len(all_data[row])
@@ -77,8 +77,8 @@ with open('../AT-waypoints.csv', 'w') as outfile:
             for column in [0,1,5]:
                 outfile.write(all_data[row][column] + ",")
             if row == 0:
-                outfile.write("Rescaled")
+                outfile.write("Rescaled,Highlight")
             else:
-                outfile.write(str(round(rescale(value=float(all_data[row][1]), start1=0, end1=2180.0, start2=0, end2=2189.1), 1)))
+                outfile.write(str(round(rescale(value=float(all_data[row][1]), start1=0, end1=2180.0, start2=0, end2=2189.1), 1)) + ",")
             if row != number_of_rows - 1:
                 outfile.write("\n")

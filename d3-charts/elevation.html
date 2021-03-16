@@ -48,7 +48,10 @@
             function(data) {
 
               data = data.filter(function(d) {
-                return +d.Rescaled >= 0 && d.Rescaled <= 500;
+                return +d.Rescaled >= 0 && d.Rescaled <= 100;
+              })
+              highlight = data.filter(function(d) {
+                return d.Highlight != "";
               })
           
               // Add X axis --> it is a date format
@@ -59,8 +62,6 @@
               svg.append("g")
                 .attr("transform", "translate(0," + height + ")")
                 .call(d3.axisBottom(x));
-          
-              console.log(d3.max(data, function(d) { return +d.Elev; }));
 
               // Add Y axis
               var y = d3.scaleLinear()
@@ -109,21 +110,20 @@
                   Tooltip
                     .style("opacity", 0)
                 }
-              /*
+
               svg
                   .append("g")
                   .selectAll("dot")
-                  .data(data)
+                  .data(highlight)
                   .enter()
                   .append("circle")
-                    .attr("cx", function(d) { return x(d.Mile) } )
+                    .attr("cx", function(d) { return x(d.Rescaled) } )
                     .attr("cy", function(d) { return y(d.Elev) } )
                     .attr("r", 5)
                     .attr("fill", "#69b3a2")
                     .on("mouseover", mouseover)
                     .on("mousemove", mousemove)
                     .on("mouseleave", mouseleave)
-              */
 
           })
           
