@@ -13,10 +13,26 @@
     </head>
 
     <body>
+        
+        <select id="stateSelect"></select>
         <!-- Create a div where the graph will take place -->
         <div id="elevation"></div>
 
         <script>
+
+
+          var stateInfo = d3.csv("../data/AT-states.csv",
+            function(data) {
+              // add the options to the button
+              d3.select("#stateSelect")
+                .selectAll('myOptions')
+                .data(data)
+                .enter()
+                .append('option')
+                .text(function (d) { return d.State; }) // text showed in the menu
+                .attr("value", function (d) { return [d.Start, d.End]; }) // corresponding value returned by the button
+            }
+          )
 
           // set the dimensions and margins of the graph
           var margin = {top: 10, right: 30, bottom: 30, left: 60},
@@ -32,34 +48,55 @@
               .attr("transform",
                     "translate(" + margin.left + "," + margin.top + ")");
           
+          function tooltip(data) {          
+
+            var Tooltip = d3.select("#elevation")
+              .append("div")
+              .style("opacity", 0)
+              .attr("class", "tooltip")
+              .style("background-color", "white")
+              .style("border", "solid")
+              .style("border-width", "2px")
+              .style("border-radius", "5px")
+              .style("padding", "5px")
+              .style("position", "absolute")
+
+              // Three function that change the tooltip when user hover / move / leave a cell
+              var mouseover = function(d) {
+                Tooltip
+                  .style("opacity", 1)
+              }
+              var mousemove = function(d) {
+                Tooltip
+                  .html(d.Desc + "<br>" + "Mile " + d.Rescaled + " / " + d.Elev + " feet")
+                  .style("left", (d3.mouse(this)[0]+70) + "px")
+                  .style("top", (d3.mouse(this)[1]) + "px")
+              }
+              var mouseleave = function(d) {
+                Tooltip
+                  .style("opacity", 0)
+              }
+          }
+
+
+
           //Read the data
           d3.csv("../data/AT-waypoints.csv",
-          
-            /*
-            //When reading the csv, I must format variables:
-            function(d){
-              return { Mile : d.Mile, Elev : d.Elev }
-            },
-            */
-          
-            
 
+          
             // Now I can use this dataset:
             function(data) {
 
-              data = data.filter(function(d) {
-                return +d.Rescaled >= 0 && d.Rescaled <= 100;
-              })
               highlight = data.filter(function(d) {
                 return d.Highlight != "";
               })
-          
+
               // Add X axis --> it is a date format
               var x = d3.scaleLinear()
                 .domain([d3.min(data, function(d) { return +d.Rescaled; }), d3.max(data, function(d) { return +d.Rescaled; })])
                 //.domain([0, d3.max(data, function(d) { return +d.Rescaled; })])
                 .range([ 0, width ]);
-              svg.append("g")
+              var x_axis = svg.append("g")
                 .attr("transform", "translate(0," + height + ")")
                 .call(d3.axisBottom(x));
 
@@ -71,59 +108,58 @@
                 .call(d3.axisLeft(y));
           
               // Add the line
-              svg.append("path")
+              var elevation = svg.append("path")
                 .datum(data)
-                .attr("fill", "steelblue")
-                .attr("stroke", "steelblue")
-                .attr("stroke-width", 1.5)
+                .attr("fill", "#2D8C0A")
+                .attr("stroke", "#2D8C0A")
+                .attr("stroke-width", 0)
                 .attr("d", d3.area()
-                  .curve(d3.curveMonotoneX)
+                  //.curve(d3.curveMonotoneX)
                   .x(function(d) { return x(d.Rescaled) })
                   .y0(y(0))
                   .y1(function(d) { return y(d.Elev) })
                 )
-              
 
-              var Tooltip = d3.select("#elevation")
-                .append("div")
-                .style("opacity", 0)
-                .attr("class", "tooltip")
-                .style("background-color", "white")
-                .style("border", "solid")
-                .style("border-width", "2px")
-                .style("border-radius", "5px")
-                .style("padding", "5px")
-                .style("position", "absolute")
 
-                // Three function that change the tooltip when user hover / move / leave a cell
-                var mouseover = function(d) {
-                  Tooltip
-                    .style("opacity", 1)
-                }
-                var mousemove = function(d) {
-                  Tooltip
-                    .html(d.Desc + "<br>" + "Mile " + d.Rescaled + " / " + d.Elev + " feet")
-                    .style("left", (d3.mouse(this)[0]+70) + "px")
-                    .style("top", (d3.mouse(this)[1]) + "px")
-                }
-                var mouseleave = function(d) {
-                  Tooltip
-                    .style("opacity", 0)
-                }
+              tooltip(data);
+            
+              function update(range) {
+                range = range.split(",")
+                state_elevation = data.filter(function(d) {
+                  return +d.Rescaled >= +range[0] && d.Rescaled <= +range[1];
+                })
+                highlight = state_elevation.filter(function(d) {
+                  return d.Highlight != "";
+                })
 
-              svg
-                  .append("g")
-                  .selectAll("dot")
-                  .data(highlight)
-                  .enter()
-                  .append("circle")
-                    .attr("cx", function(d) { return x(d.Rescaled) } )
-                    .attr("cy", function(d) { return y(d.Elev) } )
-                    .attr("r", 5)
-                    .attr("fill", "#69b3a2")
-                    .on("mouseover", mouseover)
-                    .on("mousemove", mousemove)
-                    .on("mouseleave", mouseleave)
+                // Add X axis --> it is a date format
+                var x = d3.scaleLinear()
+                  .domain([d3.min(state_elevation, function(d) { return +d.Rescaled; }), d3.max(state_elevation, function(d) { return +d.Rescaled; })])
+                  //.domain([0, d3.max(data, function(d) { return +d.Rescaled; })])
+                  .range([ 0, width ]);
+                x_axis
+                  .attr("transform", "translate(0," + height + ")")
+                  .call(d3.axisBottom(x));
+
+                elevation
+                  .datum(state_elevation)
+                  .attr("d", d3.area()
+                    //.curve(d3.curveMonotoneX)
+                    .x(function(d) { return x(d.Rescaled) })
+                    .y0(y(0))
+                    .y1(function(d) { return y(d.Elev) })
+                  )
+
+                //tooltip(data);
+              }
+          
+              // When the button is changed, run the updateChart function
+              d3.select("#stateSelect").on("change", function(d) {
+                // recover the option that has been chosen
+                var range = d3.select(this).property("value");
+                // run the updateChart function with this selected option
+                update(range);
+              })
 
           })
           
